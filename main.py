@@ -23,9 +23,9 @@ def main():
 
     response = find_by_column('left copy', query, soup)
     
-    if answer_is_blank(response):
+    if answer_not_found(response):
       response = find_by_column('right copy', query, soup)
-      if answer_is_blank(response):
+      if answer_not_found(response):
         idklol()
   
     query = input('Paste your text here and press [enter]: ').lower()
@@ -39,8 +39,8 @@ def find_by_column(column, query, soup):
       print(each.parent.text)
       return each.parent.text
   
-def answer_is_blank(answer):
-  return answer == '' or answer == []
+def answer_not_found(string):
+  return string == '' or string == [] or string == None
 
 def idklol():
   print("¯\\_(ツ)_/¯")
