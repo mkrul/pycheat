@@ -1,3 +1,4 @@
+import re
 import requests
 from bs4 import BeautifulSoup
 from googlesearch import search
@@ -8,9 +9,9 @@ def main():
   query = input('Paste your text here and press [enter]: ').lower()
 
   while query != '':
-    google_search = search(query, tld='co.in', num=1, stop=1, pause=1)
+    google_search = search(query, tld='co.in', num=1, stop=1, pause=0)
     url = ''
-    answer = ''
+    response = ''
 
     for result in google_search: 
       split_url = result.split('/')[:4]
@@ -20,28 +21,26 @@ def main():
 
     soup = BeautifulSoup(req.content, features='html.parser')
 
-    left_spans = soup.findAll('span', {'class': 'left copy'})
-
-    for each in left_spans:
-      raw_text = each.text.lower().strip()
-      quoted_text = '"' + raw_text + '"'
-      if query in raw_text or query in quoted_text:
-        print(each.parent.text)
-        answer = each.parent.text
+    response = find_by_column('left copy', query, soup)
     
-    if answer == '':
-      right_spans = soup.findAll('span', {'class': 'right copy'})
-      for each in right_spans:
-        raw_text = each.text.lower().strip()
-        quoted_text = '"' + raw_text + '"'
-        if query in raw_text or query in quoted_text:
-          print(each.parent.text)
-          answer = each.parent.text
-    
-    if answer == '':
-      idklol()
+    if answer_is_blank(response):
+      response = find_by_column('right copy', query, soup)
+      if answer_is_blank(response):
+        idklol()
   
     query = input('Paste your text here and press [enter]: ').lower()
+
+def find_by_column(column, query, soup):
+  tags = soup.findAll('span', {'class': column})
+  for each in tags:
+    raw_text = each.text.lower().strip()
+    quoted_text = '"' + raw_text + '"'
+    if query in raw_text or query in quoted_text:
+      print(each.parent.text)
+      return each.parent.text
+  
+def answer_is_blank(answer):
+  return answer == '' or answer == []
 
 def idklol():
   print("¯\\_(ツ)_/¯")
